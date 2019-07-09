@@ -37,10 +37,10 @@ class Item(Resource):
 
     #@jwt_required()
     def delete(self, name):
-        connect_var = mysql.connector.connect(host='172.31.42.184',
-	     database='flaskapp',
-	     user='prem',
-	     password='password')
+        connect_var = mysql.connector.connect(host='100.24.14.5',
+         database='flaskapp',
+         user='prem',
+         password='password', ssl_disabled='False')
         cursor = connect_var.cursor()
         del_query = "DELETE from items where name = %s"
 
@@ -70,12 +70,12 @@ class Item(Resource):
         return i.json(), 201
 
 class Itemslist(Resource):
-    #@jwt_required()
+    @jwt_required()
     def get(self):
-        conn = mysql.connector.connect(host='172.31.42.184',
-	     database='flaskapp',
-	     user='prem',
-	     password='password')
+        conn = mysql.connector.connect(host = '100.24.14.5',
+            database = 'flaskapp',
+            user = 'prem',
+            password = 'password', ssl_disabled='False')
         cursor = conn.cursor()
         query = "SELECT * FROM items"
         cursor.execute(query)
@@ -86,4 +86,4 @@ class Itemslist(Resource):
         cursor.close()
         conn.close()
         if result:
-            return {'items': items}, 200
+            return {"items": items}, 200

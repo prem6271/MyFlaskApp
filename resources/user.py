@@ -18,10 +18,10 @@ class UserRegister(Resource):
         data = UserRegister.parser.parse_args()
         if UserModel.find_by_username(data['username']):
             return {"message": "User already exists."}
-        connect_var = mysql.connector.connect(host='172.31.42.184',
+        connect_var = mysql.connector.connect(host='100.24.14.5',
 	     database='flaskapp',
 	     user='prem',
-	     password='password')
+	     password='password', ssl_disabled='False')
         cursor = connect_var.cursor()
         insert_query = "INSERT INTO test values (NULL, %s, %s)"
 

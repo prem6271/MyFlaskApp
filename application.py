@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from flask import Flask
 from flask_restful import Api
 from flask_jwt import JWT
@@ -28,4 +29,4 @@ api.add_resource(UserRegister, '/register')
 
 if __name__ == '__main__':
     create_table()
-    application.run(port=5000, debug=True)
+    application.run(port=5000, debug=True, host='0.0.0.0')
