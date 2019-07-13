@@ -10,6 +10,8 @@ from create_table import create_table
 
 application = Flask(__name__)
 application.secret_key = 'prem'
+application.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://prem:password@3.91.250.99/flaskapp'
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = 'False'
 application.config['PROPAGATE_EXCEPTIONS'] = True
 
 api = Api(application)
@@ -28,5 +30,7 @@ api.add_resource(Itemslist, '/items')
 api.add_resource(UserRegister, '/register')
 
 if __name__ == '__main__':
+    from db import db
+    db.init_app(application)
     create_table()
     application.run(port=5000, debug=True, host='0.0.0.0')

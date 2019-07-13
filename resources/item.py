@@ -1,9 +1,6 @@
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
 from model.item import ItemModel
-import mysql.connector
-
-items = []
 
 # Our 1st Resource with only get method.
 class Item(Resource):
@@ -29,7 +26,7 @@ class Item(Resource):
         req = Item.parser.parse_args()
         i = ItemModel(name, req['price'])
         try:
-            i.insert()
+            i.save_to_db()
         except:
             return {"message": "An error occurred."}, 500 # code for internal error
 
@@ -37,53 +34,25 @@ class Item(Resource):
 
     #@jwt_required()
     def delete(self, name):
-        connect_var = mysql.connector.connect(host='100.24.14.5',
-         database='flaskapp',
-         user='prem',
-         password='password', ssl_disabled='False')
-        cursor = connect_var.cursor()
-        del_query = "DELETE from items where name = %s"
-
-        cursor.execute(del_query, (name,))
-
-        connect_var.commit()
-        cursor.close()
-        connect_var.close()
-        return {"message": "Item deleted."}
-
+        item = ItemModel.get_item_by_name(name)
+        if item:
+            item.delete_from_db()
+        return {'message': 'Item deleted'}
     #@jwt_required()
     def put(self, name):
         req = Item.parser.parse_args()
-        i = ItemModel(name, req['price'])
 
-        if ItemModel.get_item_by_name(name):
-            try:
-                i.update()
-            except:
-                return {"message": "An error occurred."}, 500 # code for internal error
+        i = ItemModel.get_item_by_name(name)
+        if i is None:
+            i = ItemModel(name, req['price'])
         else:
-            try:
-                i.insert()
-            except:
-                return {"message": "An error occurred."}, 500 # code for internal error
+            i.price = req['price']
+
+        i.save_to_db()
 
         return i.json(), 201
 
 class Itemslist(Resource):
-    @jwt_required()
+    #@jwt_required()
     def get(self):
-        conn = mysql.connector.connect(host = '100.24.14.5',
-            database = 'flaskapp',
-            user = 'prem',
-            password = 'password', ssl_disabled='False')
-        cursor = conn.cursor()
-        query = "SELECT * FROM items"
-        cursor.execute(query)
-        result = cursor.fetchall()
-        items = []
-        for i in result:
-            items.append(i)
-        cursor.close()
-        conn.close()
-        if result:
-            return {"items": items}, 200
+        return {'items': [i.json() for i in ItemModel.query.all()]}, 200

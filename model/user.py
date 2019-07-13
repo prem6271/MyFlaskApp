@@ -1,47 +1,27 @@
 import mysql.connector
+from db import db
 
-class UserModel:
-    def __init__(self, _id, username, password):
-        self.id = _id
+class UserModel(db.Model):
+    __tablename__ = 'users'
+    # the column names should match with object properties.
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80))
+    password = db.Column(db.String(80))
+
+    def __init__(self, username, password):
         self.username = username
         self.password = password
 
     @classmethod
     # cls means current Class
     def find_by_username(cls, username):
-        conn = mysql.connector.connect(host='100.24.14.5',
-	     database='flaskapp',
-	     user='prem',
-	     password='password', ssl_disabled='False')
-        cursor = conn.cursor()
-        query = "SELECT * FROM test where username=%s"
-        cursor.execute(query, (username,)) # Note that arguments should be passed as a Tuple, even if it is just 1 argument
-        row = cursor.fetchone()
+        return cls.query.filter_by(username=username).first()
 
-        if row:
-            user = cls(*row) # set of positional arguments
-        else:
-            user = None
-        cursor.close()
-        conn.close()
-        return user
-
-    @classmethod
+    @classmethods
     # cls means current Class
     def find_by_id(cls, _id):
-        conn =  mysql.connector.connect(host='100.24.14.5',
-	     database='flaskapp',
-	     user='prem',
-	     password='password', ssl_disabled='False')
-        cursor = conn.cursor()
-        query = "SELECT * FROM test where id=%s"
-        cursor.execute(query, (_id,)) # Note that arguments should be passed as a Tuple, even if it is just 1 argument
-        row = cursor.fetchone()
+        return cls.query.filter_by(id=_id).first()
 
-        if row:
-            user = cls(*row) # set of positional arguments
-        else:
-            user = None
-        cursor.close()
-        conn.close()
-        return user
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()

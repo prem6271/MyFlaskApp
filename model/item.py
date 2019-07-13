@@ -1,6 +1,13 @@
 import mysql.connector
+from db import db
 
-class ItemModel:
+class ItemModel(db.Model):
+    __tablename__ = 'items'
+    # the column names should match with object properties.
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80))
+    price = db.Column(db.Float(precision=2))
+
     def __init__(self, name, price):
         self.name = name
         self.price = price
@@ -10,43 +17,12 @@ class ItemModel:
 
     @classmethod
     def get_item_by_name(cls, name):
-        conn = mysql.connector.connect(host='100.24.14.5',
-	     database='flaskapp',
-	     user='prem',
-	     password='password', ssl_disabled='False')
-        cursor = conn.cursor()
-        query = "SELECT * FROM items where name=%s"
-        cursor.execute(query, (name,)) # Note that arguments should be passed as a Tuple, even if it is just 1 argument
-        row = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        if row:
-            return cls(*row)
+        return cls.query.filter_by(name=name).first()
 
-    def insert(self):
-        connect_var =  mysql.connector.connect(host='100.24.14.5',
-	     database='flaskapp',
-	     user='prem',
-	     password='password', ssl_disabled='False')
-        cursor = connect_var.cursor()
-        insert_query = "INSERT INTO items values (%s, %s)"
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
 
-        cursor.execute(insert_query, (self.name, self.price))
-
-        connect_var.commit()
-        cursor.close()
-        connect_var.close()
-
-    def update(self):
-        connect_var = mysql.connector.connect(host='100.24.14.5',
-	     database='flaskapp',
-	     user='prem',
-	     password='password', ssl_disabled='False')
-        cursor = connect_var.cursor()
-        upd_query = "UPDATE items set price=%s where name = %s"
-
-        cursor.execute(upd_query, (self.price, self.name))
-
-        connect_var.commit()
-        cursor.close()
-        connect_var.close()
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()

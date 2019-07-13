@@ -1,4 +1,3 @@
-import mysql.connector
 from model.user import UserModel
 from flask_restful import Resource, reqparse
 
@@ -18,16 +17,10 @@ class UserRegister(Resource):
         data = UserRegister.parser.parse_args()
         if UserModel.find_by_username(data['username']):
             return {"message": "User already exists."}
-        connect_var = mysql.connector.connect(host='100.24.14.5',
-	     database='flaskapp',
-	     user='prem',
-	     password='password', ssl_disabled='False')
-        cursor = connect_var.cursor()
-        insert_query = "INSERT INTO test values (NULL, %s, %s)"
 
-        cursor.execute(insert_query, (data['username'], data['password']))
-
-        connect_var.commit()
-        cursor.close()
-        connect_var.close()
+        i = UserModel(**data)
+        try:
+            i.save_to_db()
+        except:
+            return {"message": "An error occurred."}, 500 # code for internal error
         return {"message": "User created successfully."}, 201
