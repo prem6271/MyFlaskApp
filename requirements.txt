@@ -8,7 +8,7 @@ itsdangerous==1.1.0
 Jinja2==2.10.1
 MarkupSafe==1.1.1
 mysql-connector-python==8.0.16
-protobuf==3.8.0
+protobuf==3.18.3
 PyJWT==1.4.2
 PyMySQL==0.9.3
 pytz==2019.1
